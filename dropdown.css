@@ -1,0 +1,78 @@
+/* The MIT License */
+/* 
+    Created on : 13-Jun-2014, 5:13:57 PM
+    Author     : BryanCua
+*/
+
+.dropdown{
+    color: #ddd;
+    border-radius: 4px;
+    border: 1px solid gray;
+    background-color: white;
+    padding: 5px;
+    cursor: pointer;
+    width: inherit !important;
+}
+
+.dropdown .text{
+    display:inline-block;
+    width: 90px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.dropdown.selected{
+    color: black;
+}
+
+.dropdown .caret{ color: black; height: 10px; }
+
+.dropdown:hover{
+    background-color: #eee;
+    color: black;
+}
+
+ul.entries{
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    width: inherit;    
+    list-style-type: none;
+    padding: 0px;
+}
+
+li.entry{
+    padding: 5px;
+    cursor: pointer;
+}
+
+li.entry:hover{
+    background-color: blue;
+    color: white;
+}
+
+li.entry.selected{
+    background-color: blue;
+    color: white;
+}
+
+div.detail{
+    width: 100px;
+    border-radius: 4px;
+    border: 1px solid gray;
+    background-color: white;
+    padding: 5px;
+}
+
+div.detail span.dHead{
+    font-weight: bold; 
+    display: inline-block;
+    padding: 3px;
+}
+
+div.detail span.dData{
+    display: inline-block; 
+    padding: 3px;
+}

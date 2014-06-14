@@ -1,0 +1,12 @@
+{
+    "name": "dropdown",
+    "version": "0.1.0",
+    "title": "Dropdown List Plugin",
+    "author": {"name": "Bryan Cua"},
+    "licenses": [{"type": "MIT", "url": "http://opensource.org/licenses/MIT"}],
+    "dependencies": {"jquery": "2.0.2", "popupMgr": "0.2.2"},
+    "description": "$.dropdown creates dropdown lists separated by group. As with popup, only one dropdown of each group can be shown at one time. As the entries do not need to be rendered at start, large tables should render quicker than if <select> is used.",
+    "homepage": "http://js.lovelotte.net/jQ/dropdown",
+    "demo": "http://js.lovelotte.net/jQ/dropdown/demo.php",
+    "keywords": ["List", "Dropdown"]
+}
