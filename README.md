@@ -8,3 +8,13 @@ $.dropdown creates dropdown lists separated by group. As with popup, only one dr
 Homepage: http://js.lovelotte.net/jQ/dropdown
 
 Demos: http://js.lovelotte.net/jQ/dropdown/demo.php
+
+Changelog
+=========
+
+0.1.1
+------
+Functionality:
+- usekeys
+- numeric values for .select, .unselect
+- default initialized values
