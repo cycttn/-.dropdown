@@ -1,6 +1,6 @@
 {
     "name": "dropdown",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "title": "Dropdown List Plugin",
     "author": {"name": "Bryan Cua"},
     "licenses": [{"type": "MIT", "url": "http://opensource.org/licenses/MIT"}],

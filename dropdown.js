@@ -18,7 +18,8 @@
         group: 'dropdownMain',
         detail: null,
         getValue: getValue,
-        multiple: false
+        multiple: false,
+        usekeys: false
     };
     
     var all = []; 
@@ -61,12 +62,20 @@
             jQ: container.clone()
         };
         
+        var selected = []; 
         for(var i=0; i<entries.length; i++ ){
             var isObj = $.isPlainObject(entries[i]);
             var val = isObj? entries[i].value : entries[i]; 
             var key = (isObj && 'key' in entries[i])? entries[i].key : i;
-            this.entries.jQ.append( entry.clone().attr('data-id', key).html( val ) );            
+            var currEntry = entry.clone().attr('data-id', key).html( val );
+            if( isObj && 'selected' in entries[i] && entries[i].selected ){
+                selected.push(currEntry);
+            }
+            this.entries.jQ.append( currEntry );            
         }
+        
+        for(var i=0; i<selected.length; i++ )
+            this.select(selected[i]);
         
         //Create detail if need
         this.detailCreated = false;
@@ -128,6 +137,10 @@
     };
     
     $.dropdown.prototype.select = function($el){
+        if( $.isNumeric($el) ) $el = this.entries.jQ.find('li.entry').eq($el);
+        else if( ! $el instanceof jQuery ) return; 
+        if( $el.length == 0 ) return;
+        
         this.$this.addClass('selected');
         
         if( this.o.multiple ){
@@ -143,6 +156,10 @@
     };
     
     $.dropdown.prototype.unselect = function($el){
+        if( !$el ) $el = this.entries.jQ.find('li.entry.selected');
+        if( $.isNumeric($el) ){ $el = this.entries.jQ.find('li.entry').eq($el); }        
+        if( $el.length ==0 ) return;
+        
         $el.removeClass('selected');
         if( this.o.multiple ){
             updateTextForMultiple.call(this);
@@ -152,6 +169,8 @@
     };
     
     $.dropdown.prototype.val = function(t){
+        if( t === null ) t = this.o.usekeys;
+
         var arr = [], g = this.o.getValue; 
         this.entries.jQ.find('li.entry.selected').each(function(){
             t? arr.push( $(this).attr('data-id') ) : arr.push( g.call(this) );
