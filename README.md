@@ -18,3 +18,11 @@ Functionality:
 - usekeys
 - numeric values for .select, .unselect
 - default initialized values
+
+0.1.3
+------
+1. Fixed bug in createEntries - when throwing exception
+2. Added ‘labels’
+3. Added filtering with $.listFilter
+4. Fixed bug in select when triggering select.dropdown
+5. Fixed bug in val regarding using keys or not
