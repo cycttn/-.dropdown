@@ -6,6 +6,7 @@
     var detKey = "Detail";
     
     var entry = $("<li />").addClass('entry');
+    var label = $("<li />").addClass('label');
     var container = $("<ul />").addClass('entries');
     
     var dData = $("<span />").addClass('dData');
@@ -15,6 +16,7 @@
 
     var defaults = {
         dropText: '.text',
+        dropFilter: '.ddFilter',
         group: 'dropdownMain',
         detail: null,
         getValue: getValue,
@@ -50,11 +52,19 @@
         if( this.$text.length == 0 ) this.$text = this.$this;
         this.placeholder = this.$text.text(); 
         
+        if( this.o.dropFilter ){
+            this.$filter = this.$this.find(this.o.dropFilter);
+            if( this.$filter.length == 0) this.$filter = null;
+            else this.$filter.addClass('hidden');
+        }
+        
+        this.filterSet=false;
+        
         this.reset(entries); //resets!         
     };
     
     $.dropdown.prototype.createEntries = function(entries){
-        if( !$.isArray(entries) || entries.length == 0 ) throw new "Cannot Use Empty Array For Entries";
+        if( !$.isArray(entries) || entries.length == 0 ) throw "Cannot Use Empty Array For Entries";
         
         //Create entries
         this.entries = {
@@ -66,10 +76,17 @@
         for(var i=0; i<entries.length; i++ ){
             var isObj = $.isPlainObject(entries[i]);
             var val = isObj? entries[i].value : entries[i]; 
-            var key = (isObj && 'key' in entries[i])? entries[i].key : i;
-            var currEntry = entry.clone().attr('data-id', key).html( val );
-            if( isObj && 'selected' in entries[i] && entries[i].selected ){
-                selected.push(currEntry);
+            
+            var currEntry; 
+            if( isObj ){
+                if( 'label' in entries[i] && entries[i].label ) currEntry = label.clone();
+                else if( 'key' in entries[i] && entries[i].key ) currEntry = entry.clone().attr('data-id', entries[i].key);
+                else currEntry = entry.clone().attr('data-id', i);
+                
+                if( 'selected' in entries[i] && entries[i].selected && currEntry.is('.entry') ) selected.push(currEntry); 
+                currEntry.html(val); 
+            }else{
+                currEntry = entry.clone().attr('data-id', i).html(val);
             }
             this.entries.jQ.append( currEntry );            
         }
@@ -104,6 +121,9 @@
         if( options ) $.extend(this.o, options);
         if( entries ) this.createEntries(entries);
 
+        //Set listfilter if it exists
+        if( $.listFilter ) setListFilter.call(this); 
+
         try{ 
             $.popupMgr.create(this.o.group); //create the dropdown group. If fails, means group already created
         }catch(e){}finally{
@@ -121,7 +141,7 @@
         this.entries.jQ.find('li.entry').hover(
             $.proxy(updateDetail, this), 
             $.proxy(hideDetail, this)
-        ).click($.proxy(function(e){
+        ).click($.proxy(function(e){            
             if( !this.o.multiple ) $.popupMgr.hide(this.o.group); 
             
             var $el = $(e.currentTarget);            
@@ -132,15 +152,43 @@
             }
 
             e.stopPropagation();            
-        }, this));
-        
+        }, this));        
     };
+    
+    var filterOptions = {'list-els': 'li', 'list-params': '', 'min-chars':0};
+
+    function setListFilter(){
+        if( !this.$filter ) return;        
+        
+        if( this.filterSet ){
+            var lF = this.$filter.listFilter(); 
+            lF.setList( this.entries.jQ, filterOptions);                    
+        }else{
+            var lF = this.$filter.listFilter( this.entries.jQ, filterOptions ); 
+            lF.defaultActions();      
+            
+            this.$filter.on('filtered.listfilter', $.proxy(function(){
+                $.popupMgr.pos(null, this.o.group, this.$this, null, null, 3);
+                $.popupMgr._showNoAnim(this.o.group);
+            }, this));
+            
+            this.filterSet = true;
+        }
+        
+        this.$this.on('show.popupMgr', $.proxy(function(){
+            this.$text.addClass('hidden');
+            this.$filter.removeClass('hidden').focus();
+        }, this)).on('hide.popupMgr', $.proxy(function(){
+            this.$text.removeClass('hidden');
+            this.$filter.html('').trigger('showAll.listfilter', [ this.$filter, this.entries.jQ.find('li') ]).addClass('hidden');
+        }, this));
+    }
     
     $.dropdown.prototype.select = function($el){
         if( $.isNumeric($el) ) $el = this.entries.jQ.find('li.entry').eq($el);
         else if( ! $el instanceof jQuery ) return; 
         if( $el.length == 0 ) return;
-        
+                
         this.$this.addClass('selected');
         
         if( this.o.multiple ){
@@ -152,13 +200,12 @@
             this.$text.html( this.o.getValue.call($el) );
         }
         
-        this.$this.trigger('select.dropdown', [this.val(), this.val(1)]);
+        this.$this.trigger('select.dropdown', [this.val(0), this.val(1)]);
     };
     
     $.dropdown.prototype.unselect = function($el){
         if( !$el ) $el = this.entries.jQ.find('li.entry.selected');
         if( $.isNumeric($el) ){ $el = this.entries.jQ.find('li.entry').eq($el); }        
-        if( $el.length ==0 ) return;
         
         $el.removeClass('selected');
         if( this.o.multiple ){
@@ -166,15 +213,19 @@
         }else{
             usePlaceholder.call(this);
         }
+        
+        this.$this.trigger('unselect.dropdown', [$el]);
     };
     
     $.dropdown.prototype.val = function(t){
-        if( t === null ) t = this.o.usekeys;
-
+        if( t !== 0 && !t ) t = this.o.usekeys;
+        
         var arr = [], g = this.o.getValue; 
         this.entries.jQ.find('li.entry.selected').each(function(){
             t? arr.push( $(this).attr('data-id') ) : arr.push( g.call(this) );
         });
+        
+        if( !this.o.multiple ) arr = arr[0]; 
         
         return arr;
     };
